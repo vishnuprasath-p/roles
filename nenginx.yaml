@@ -1,0 +1,6 @@
+---
+- name: Deploy Nginx WebApp
+  hosts: all
+  become: yes
+  roles:
+    - nginx_webapp

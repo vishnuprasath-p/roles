@@ -1,0 +1,11 @@
+---
+# vars file for nginx
+# roles/nginx_webapp/vars/main.yml
+
+docker_venv_path: "/opt/docker_venv"
+webapp_path: "/opt/webapp"
+dockerfile_path: "/home/ec2-user/Dockerfile/"
+docker_image_name: "nginx_webapp"
+container_name: "nginx_container"
+container_ports:
+  - "80:80"
