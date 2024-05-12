@@ -28,12 +28,6 @@
 - name: Log in to Docker Hub
   command: "docker login -u prasathvishnu2@gmail.com -p Pavini94@"
 
-- name: Push Docker image to registry
-  docker_image:
-    name: "{{ docker_image_name }}"
-    push: yes
-  delegate_to: 107.21.188.86  # Push the Docker image from the master node
-
 - name: Pull Docker image on master node
   docker_image:
     name: "{{ docker_image_name }}"
