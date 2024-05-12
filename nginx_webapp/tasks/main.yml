@@ -36,7 +36,7 @@
 - name: Log in to Docker registry
   docker_login:
     registry_url: "https://hub.docker.com/"
-    username: "prasathvishnu2@gmail.com"
+    username: "vishnu010194"
     password: "Pavini94@"
 
 - name: Push Docker image to registry
