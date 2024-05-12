@@ -35,7 +35,7 @@
 
 - name: Log in to Docker registry
   docker_login:
-    registry_url: "your_registry_url"
+    registry_url: "https://hub.docker.com/"
     username: "prasathvishnu2@gmail.com"
     password: "Pavini94@"
 
