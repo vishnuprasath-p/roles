@@ -34,7 +34,7 @@
   delegate_to: 107.21.188.86  # Build the Docker image on the master node
 
 - name: Log in to Docker Hub
-  command: "docker login -u prasathvishnu2@gmail.com -p "Pavini94"
+  command: "docker login -u prasathvishnu2@gmail.com -p Pavini94@"
 
 - name: Push Docker image to registry
   docker_image:
