@@ -13,58 +13,52 @@
     state: started
     enabled: yes
 
-- name: Install python3-pip
-  yum:
-    name: python3-pip
-    state: present
-
-- name: Install Docker SDK for Python
-  pip:
-    name: docker
-    executable: /usr/bin/pip3  # Specify the path to pip3
-    state: present
-
 - name: Create directory for web app
   file:
     path: "{{ webapp_path }}"
     state: directory
 
-- name: Copy web app files to master node
+- name: Copy web app files
   copy:
     src: /home/ec2-user/index.html
     dest: "{{ webapp_path }}"
-  delegate_to: 10.0.10.165  # Ensure the file is copied to the master node
+    remote_src: yes
 
-- name: Build Nginx Docker image on master node
-  command:
-    cmd: "docker build -t {{ docker_image_name }} {{ dockerfile_path }}"
-    chdir: "{{ webapp_path }}"
-  delegate_to: 10.0.10.165  # Build the Docker image on the master node
+- name: Install python3-pip
+  yum:
+    name: python3-pip
+    state: present
 
-- name: Pull Docker image on master node
+- name: Create a virtual environment
+  pip:
+    name: virtualenv
+    state: present
+
+- name: Create a virtual environment for Docker SDK
+  command: "python3 -m virtualenv {{ docker_venv_path }}"
+  args:
+    creates: "{{ docker_venv_path }}"
+
+- name: Install Docker SDK for Python in virtual environment
+  pip:
+    executable: "{{ docker_venv_path }}/bin/pip"
+    name: docker
+
+- name: Activate virtual environment
+  shell: source {{ docker_venv_path }}/bin/activate
+
+- name: Build Nginx Docker image
   docker_image:
     name: "{{ docker_image_name }}"
-    source: pull
-  delegate_to: 10.0.10.165  # Pull the Docker image on the master node
+    source: build
+    build:
+      path: "{{ dockerfile_path }}"
 
-- name: Pull Docker image on slave nodes
-  docker_image:
-    name: "{{ docker_image_name }}"
-    source: pull
-
-- name: Run Nginx container on master node
+- name: Run Nginx container
   docker_container:
     name: "{{ container_name }}"
     image: "{{ docker_image_name }}"
     state: started
     restart_policy: always
     ports: "{{ container_ports }}"
-  delegate_to: 10.0.10.165  # Run the Docker container on the master node
 
-- name: Run Nginx container on slave nodes
-  docker_container:
-    name: "{{ container_name }}"
-    image: "{{ docker_image_name }}"
-    state: started
-    restart_policy: always
-    ports: "{{ container_ports }}"
