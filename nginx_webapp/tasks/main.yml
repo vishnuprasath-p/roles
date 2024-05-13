@@ -23,13 +23,13 @@
     src: /home/ec2-user/index.html
     dest: "{{ webapp_path }}"
     remote_src: yes
-  delegate_to: 50.17.50.136 # Ensure the file is copied to the master node
+  delegate_to: 10.0.10.165 # Ensure the file is copied to the master node
 
 - name: Pull Docker image on master node
   docker_image:
     name: "{{ docker_image_name }}"
     source: pull
-  delegate_to: 50.17.50.136  # Pull the Docker image on the master node
+  delegate_to: 10.0.10.165  # Pull the Docker image on the master node
 
 - name: Pull Docker image on slave nodes
   docker_image:
@@ -43,7 +43,7 @@
     state: started
     restart_policy: always
     ports: "{{ container_ports }}"
-  delegate_to: 50.17.50.136  # Run the Docker container on the master node
+  delegate_to: 10.0.10.165  # Run the Docker container on the master node
 
 - name: Run Nginx container on slave nodes
   docker_container:
