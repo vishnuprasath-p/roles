@@ -49,6 +49,10 @@
     executable: "{{ docker_venv_path }}/bin/pip"
     state: present
 
+- name: Stop and remove existing Nginx container
+  command: "sudo docker rm -f {{ container_name }}"
+  ignore_errors: yes
+
 - name: Build Nginx Docker image
   command: "docker build -t {{ docker_image_name }} {{ dockerfile_path }}"
   args:
