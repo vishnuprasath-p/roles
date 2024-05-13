@@ -40,13 +40,11 @@
   args:
     creates: "{{ docker_venv_path }}"
 
-- name: Install Docker SDK for Python in virtual environment
+- name: Install Docker SDK for Python
   pip:
-    executable: "{{ docker_venv_path }}/bin/pip"
     name: docker
-
-- name: Activate virtual environment
-  shell: source {{ docker_venv_path }}/bin/activate
+    executable: /usr/bin/pip3  # Specify the path to pip3
+    state: present
 
 - name: Build Nginx Docker image
   docker_image:
@@ -62,4 +60,3 @@
     state: started
     restart_policy: always
     ports: "{{ container_ports }}"
-
