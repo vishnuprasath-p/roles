@@ -61,4 +61,3 @@
     state: started
     restart_policy: always
     ports: "{{ container_ports }}"
-
