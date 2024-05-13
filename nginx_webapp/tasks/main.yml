@@ -40,11 +40,15 @@
   args:
     creates: "{{ docker_venv_path }}"
 
-- name: Install Docker SDK for Python
+- name: Install Docker SDK for Python in virtual environment
   pip:
+    executable: "{{ docker_venv_path }}/bin/pip"
     name: docker
-    executable: /usr/bin/pip3  # Specify the path to pip3
+    version: "4.4.4"  # Specify version compatible with Python 2.7
     state: present
+
+- name: Activate virtual environment
+  shell: source {{ docker_venv_path }}/bin/activate
 
 - name: Build Nginx Docker image
   docker_image:
