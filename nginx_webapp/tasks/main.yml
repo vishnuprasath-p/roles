@@ -29,9 +29,10 @@
     name: python3-pip
     state: present
 
-- name: Create a virtual environment
+- name: Install virtualenv
   pip:
     name: virtualenv
+    executable: /usr/bin/pip3
     state: present
 
 - name: Create a virtual environment for Docker SDK
