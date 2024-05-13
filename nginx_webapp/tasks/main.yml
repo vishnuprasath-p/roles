@@ -2,61 +2,85 @@
 # tasks file for nginx
 # roles/nginx_webapp/tasks/main.yml
 
-- name: Install Docker
+- name: Install Docker on master and slave nodes
   yum:
     name: docker
     state: present
+  delegate_to: "{{ item }}"
+  loop:
+    - 10.0.10.84  # Master node
+    - 10.0.10.77  # Slave node
 
-- name: Start Docker service
+- name: Start Docker service on master and slave nodes
   service:
     name: docker
     state: started
     enabled: yes
+  delegate_to: "{{ item }}"
+  loop:
+    - 10.0.10.84  # Master node
+    - 10.0.10.77  # Slave node
 
-- name: Create directory for web app
+- name: Create directory for web app on master node
   file:
     path: "{{ webapp_path }}"
     state: directory
+  delegate_to: 10.0.10.84  # Master node
 
-- name: Copy web app files
+- name: Copy web app files to master node
   copy:
     src: /home/ec2-user/index.html
     dest: "{{ webapp_path }}"
     remote_src: yes
+  delegate_to: 10.0.10.84  # Master node
 
-- name: Install pip for Python 2.7
+- name: Install pip for Python 2.7 on master node
   yum:
     name: python-pip
     state: present
+  delegate_to: 10.0.10.84  # Master node
 
-- name: Install virtualenv for Python 2.7
+- name: Install virtualenv for Python 2.7 on master node
   pip:
     name: virtualenv
     executable: /usr/bin/pip
     state: present
+  delegate_to: 10.0.10.84  # Master node
 
-- name: Create a virtual environment for Docker SDK
+- name: Create a virtual environment for Docker SDK on master node
   command: "virtualenv {{ docker_venv_path }}"
   args:
     creates: "{{ docker_venv_path }}"
+  delegate_to: 10.0.10.84  # Master node
 
-- name: Activate virtual environment for Docker SDK
+- name: Activate virtual environment for Docker SDK on master node
   shell: source {{ docker_venv_path }}/bin/activate
+  delegate_to: 10.0.10.84  # Master node
 
-- name: Install Docker SDK for Python in virtual environment
+- name: Install Docker SDK for Python in virtual environment on master node
   pip:
     name: docker==4.4.4
     executable: "{{ docker_venv_path }}/bin/pip"
     state: present
+  delegate_to: 10.0.10.84  # Master node
 
-- name: Stop and remove existing Nginx container
-  command: "sudo docker rm -f {{ container_name }}"
-  ignore_errors: yes
-
-- name: Build Nginx Docker image
+- name: Build Nginx Docker image on master node
   command: "docker build -t {{ docker_image_name }} {{ dockerfile_path }}"
   args:
     chdir: "{{ dockerfile_path }}"
+  delegate_to: 10.0.10.84  # Master node
 
-- name: Run Nginx container
+- name: Stop and remove existing Nginx container on both master and slave nodes
+  command: "sudo docker rm -f {{ container_name }}"
+  ignore_errors: yes
+  delegate_to: "{{ item }}"
+  loop:
+    - 10.0.10.84  # Master node
+    - 10.0.10.77  # Slave node
+
+- name: Run Nginx container on both master and slave nodes
   command: "sudo docker run -itd --name {{ container_name }} -p 80:80 {{ docker_image_name }}"
+  delegate_to: "{{ item }}"
+  loop:
+    - 10.0.10.84  # Master node
+    - 10.0.10.77  # Slave node
