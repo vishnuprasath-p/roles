@@ -29,10 +29,9 @@
     name: python3-pip
     state: present
 
-- name: Install virtualenv
+- name: Create a virtual environment
   pip:
     name: virtualenv
-    executable: /usr/bin/pip3
     state: present
 
 - name: Create a virtual environment for Docker SDK
@@ -44,7 +43,6 @@
   pip:
     executable: "{{ docker_venv_path }}/bin/pip"
     name: docker
-    state: present
 
 - name: Activate virtual environment
   shell: source {{ docker_venv_path }}/bin/activate
@@ -63,3 +61,4 @@
     state: started
     restart_policy: always
     ports: "{{ container_ports }}"
+
