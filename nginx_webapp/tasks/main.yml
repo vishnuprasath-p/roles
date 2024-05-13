@@ -70,17 +70,30 @@
     chdir: "{{ dockerfile_path }}"
   delegate_to: 10.0.10.84  # Master node
 
-- name: Stop and remove existing Nginx container on both master and slave nodes
+- name: Pull Nginx Docker image from master node to slave node
+  command: "docker pull {{ docker_image_name }}"
+  delegate_to: 10.0.10.77  # Slave node
+
+- name: Stop and remove existing Nginx container on slave node
   command: "sudo docker rm -f {{ container_name }}"
   ignore_errors: yes
-  delegate_to: "{{ item }}"
-  loop:
-    - 10.0.10.84  # Master node
-    - 10.0.10.77  # Slave node
+  delegate_to: 10.0.10.77  # Slave node
 
-- name: Run Nginx container on both master and slave nodes
+- name: Run Nginx container on slave node
   command: "sudo docker run -itd --name {{ container_name }} -p 80:80 {{ docker_image_name }}"
-  delegate_to: "{{ item }}"
-  loop:
-    - 10.0.10.84  # Master node
-    - 10.0.10.77  # Slave node
+  delegate_to: 10.0.10.77  # Slave node
+
+- name: Build Nginx Docker image on slave node
+  command: "docker build -t {{ docker_image_name }} {{ dockerfile_path }}"
+  args:
+    chdir: "{{ dockerfile_path }}"
+  delegate_to: 10.0.10.77  # Slave node
+
+- name: Stop and remove existing Nginx container on master node
+  command: "sudo docker rm -f {{ container_name }}"
+  ignore_errors: yes
+  delegate_to: 10.0.10.84  # Master node
+
+- name: Run Nginx container on master node
+  command: "sudo docker run -itd --name {{ container_name }} -p 80:80 {{ docker_image_name }}"
+  delegate_to: 10.0.10.84  # Master node
